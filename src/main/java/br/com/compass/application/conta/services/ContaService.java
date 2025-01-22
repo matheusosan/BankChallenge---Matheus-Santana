@@ -55,6 +55,32 @@ public class ContaService {
         }
     }
 
+    public void verificarSaldo(String contaId) {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+
+        try {
+            String hql = "SELECT c.saldo FROM Conta c WHERE c.id = :contaId";
+            Query<BigDecimal> query = session.createQuery(hql, BigDecimal.class);
+            query.setParameter("contaId", UUID.fromString(contaId));
+
+            BigDecimal saldo = query.uniqueResult();
+
+            if (saldo == null) {
+                throw new IllegalArgumentException("Conta não encontrada com o ID fornecido.");
+            }
+
+            System.out.println(saldo);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Erro ao buscar saldo da conta: " + e.getMessage());
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
     public List<Transacao> extratoDeTransacoes(String contaId) {
         Session session = HibernateConfig.getSessionFactory().openSession();
 
