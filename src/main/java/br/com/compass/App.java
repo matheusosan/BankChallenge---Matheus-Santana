@@ -2,6 +2,8 @@ package br.com.compass;
 
 import br.com.compass.application.conta.ContaMenu;
 import br.com.compass.application.conta.services.ContaService;
+import br.com.compass.application.transacao.TransacaoMenu;
+import br.com.compass.application.transacao.services.TransacaoService;
 
 import java.util.Scanner;
 
@@ -49,6 +51,11 @@ public class App {
     }
 
     public static void bankMenu(Scanner scanner) {
+        TransacaoService transacaoService = new TransacaoService();
+        TransacaoMenu transacaoMenu = new TransacaoMenu(transacaoService);
+        ContaService contaService = new ContaService();
+        ContaMenu contaMenu = new ContaMenu(contaService);
+
         boolean running = true;
 
         while (running) {
@@ -66,24 +73,19 @@ public class App {
 
             switch (option) {
                 case 1:
-                    // ToDo...
-                    System.out.println("Deposit.");
+                    transacaoMenu.iniciarDeposito();
                     break;
                 case 2:
-                    // ToDo...
-                    System.out.println("Withdraw.");
+                    transacaoMenu.iniciarSaque();
                     break;
                 case 3:
-                    // ToDo...
-                    System.out.println("Check Balance.");
+                    contaMenu.verificarSaldo();
                     break;
                 case 4:
-                    // ToDo...
-                    System.out.println("Transfer.");
+                    transacaoMenu.iniciarTransferencia();
                     break;
                 case 5:
-                    // ToDo...
-                    System.out.println("Bank Statement.");
+                    contaMenu.iniciarConsultaTransacoes();
                     break;
                 case 0:
                     // ToDo...

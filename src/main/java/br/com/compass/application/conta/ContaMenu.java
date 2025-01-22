@@ -7,18 +7,15 @@ import br.com.compass.domain.entities.Transacao;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Random;
 import java.util.Scanner;
 
 public class ContaMenu {
     private final ContaService contaService;
     private final Scanner scanner;
-    private final Random random;
 
     public ContaMenu(ContaService contaService) {
         this.contaService = contaService;
         this.scanner = new Scanner(System.in);
-        this.random = new Random();
     }
 
     public void iniciarCriacaoConta() {
@@ -55,9 +52,20 @@ public class ContaMenu {
 
             contaService.criarConta(nome, dataNascimento, cpf, numeroTelefone, tipoConta);
         } catch (Exception e) {
-            System.err.println("Erro ao criar conta: " + e.getMessage());
+            System.out.println("Erro ao criar conta: " + e.getMessage());
         }
     }
+
+    public void verificarSaldo() {
+        try {
+            System.out.print("Digite o número da conta a verificar o saldo: ");
+            String contaId = scanner.nextLine();
+            contaService.verificarSaldo(contaId);
+        }
+        catch (Exception e) {
+                System.out.println("Erro ao buscar transações: " + e.getMessage());
+            }
+        }
 
     public void iniciarConsultaTransacoes() {
         try {
@@ -68,8 +76,9 @@ public class ContaMenu {
 
             if (transacoes.isEmpty()) {
                 System.out.println("Nenhuma transação encontrada para esta conta.");
-            } else {
-                System.out.println("Transações da conta:");
+            }
+
+            System.out.println("Transações da conta:");
                 for (Transacao transacao : transacoes) {
                     System.out.printf(
                             "Tipo: %s, Quantia: %s, Data: %s%n",
@@ -78,10 +87,9 @@ public class ContaMenu {
                             transacao.getCriadoEm()
                     );
                 }
-            }
 
         } catch (Exception e) {
-            System.err.println("Erro ao buscar transações: " + e.getMessage());
+            System.out.println("Erro ao buscar transações: " + e.getMessage());
         }
     }
 
