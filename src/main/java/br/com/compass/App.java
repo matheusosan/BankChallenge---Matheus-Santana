@@ -1,5 +1,8 @@
 package br.com.compass;
 
+import br.com.compass.application.conta.ContaMenu;
+import br.com.compass.application.conta.services.ContaService;
+
 import java.util.Scanner;
 
 public class App {
@@ -14,6 +17,9 @@ public class App {
     }
 
     public static void mainMenu(Scanner scanner) {
+        ContaService contaService = new ContaService();
+        ContaMenu contaMenu = new ContaMenu(contaService);
+
         boolean running = true;
 
         while (running) {
@@ -31,8 +37,7 @@ public class App {
                     bankMenu(scanner);
                     return;
                 case 2:
-                    // ToDo...
-                    System.out.println("Account Opening.");
+                    contaMenu.iniciarCriacaoConta();
                     break;
                 case 0:
                     running = false;
