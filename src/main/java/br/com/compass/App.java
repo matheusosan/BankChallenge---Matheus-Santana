@@ -2,10 +2,13 @@ package br.com.compass;
 
 import br.com.compass.application.conta.ContaMenu;
 import br.com.compass.application.conta.services.ContaService;
+import br.com.compass.application.security.BCryptService;
+import br.com.compass.application.security.ICriptografiaService;
 import br.com.compass.application.transacao.TransacaoMenu;
 import br.com.compass.application.transacao.services.TransacaoService;
 
 import java.util.Scanner;
+import java.util.UUID;
 
 public class App {
     
@@ -19,7 +22,8 @@ public class App {
     }
 
     public static void mainMenu(Scanner scanner) {
-        ContaService contaService = new ContaService();
+        ICriptografiaService criptografiaService = new BCryptService();
+        ContaService contaService = new ContaService(criptografiaService);
         ContaMenu contaMenu = new ContaMenu(contaService);
 
         boolean running = true;
@@ -36,7 +40,11 @@ public class App {
 
             switch (option) {
                 case 1:
-                    bankMenu(scanner);
+                    UUID contaId = contaMenu.realizarLogin();
+                    if(contaId == null) {
+                        break;
+                    }
+                    bankMenu(scanner, contaId);
                     return;
                 case 2:
                     contaMenu.iniciarCriacaoConta();
@@ -50,10 +58,11 @@ public class App {
         }
     }
 
-    public static void bankMenu(Scanner scanner) {
+    public static void bankMenu(Scanner scanner, UUID contaLogada) {
         TransacaoService transacaoService = new TransacaoService();
         TransacaoMenu transacaoMenu = new TransacaoMenu(transacaoService);
-        ContaService contaService = new ContaService();
+        ICriptografiaService criptografiaService = new BCryptService();
+        ContaService contaService = new ContaService(criptografiaService);
         ContaMenu contaMenu = new ContaMenu(contaService);
 
         boolean running = true;
@@ -73,22 +82,21 @@ public class App {
 
             switch (option) {
                 case 1:
-                    transacaoMenu.iniciarDeposito();
+                    transacaoMenu.iniciarDeposito(contaLogada);
                     break;
                 case 2:
-                    transacaoMenu.iniciarSaque();
+                    transacaoMenu.iniciarSaque(contaLogada);
                     break;
                 case 3:
-                    contaMenu.verificarSaldo();
+                    contaMenu.verificarSaldo(contaLogada);
                     break;
                 case 4:
-                    transacaoMenu.iniciarTransferencia();
+                    transacaoMenu.iniciarTransferencia(contaLogada);
                     break;
                 case 5:
-                    contaMenu.iniciarConsultaTransacoes();
+                    contaMenu.iniciarConsultaTransacoes(contaLogada);
                     break;
                 case 0:
-                    // ToDo...
                     System.out.println("Exiting...");
                     running = false;
                     return;

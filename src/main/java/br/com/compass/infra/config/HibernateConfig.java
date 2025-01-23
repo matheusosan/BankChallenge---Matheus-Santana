@@ -21,7 +21,7 @@ public class HibernateConfig {
             configuration.setProperty("hibernate.connection.password", "postgres");
             configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
 
-            configuration.setProperty("hibernate.hbm2ddl.auto", "update");
+            configuration.setProperty("hibernate.hbm2ddl.auto", "create-drop");
 //            configuration.setProperty("hibernate.show_sql", "true");
 //            configuration.setProperty("hibernate.format_sql", "true");
 

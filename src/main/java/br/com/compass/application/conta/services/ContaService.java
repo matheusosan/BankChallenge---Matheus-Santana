@@ -1,5 +1,6 @@
 package br.com.compass.application.conta.services;
 
+import br.com.compass.application.security.ICriptografiaService;
 import br.com.compass.domain.entities.Conta;
 import br.com.compass.domain.entities.Transacao;
 import br.com.compass.infra.config.HibernateConfig;
@@ -13,8 +14,13 @@ import java.util.List;
 import java.util.UUID;
 
 public class ContaService {
+    private ICriptografiaService criptografiaService;
 
-    public void criarConta(String nome, LocalDate dataNascimento, String cpf, String numeroTelefone, Conta.TipoConta tipoConta) {
+    public ContaService(ICriptografiaService criptografiaService) {
+        this.criptografiaService = criptografiaService;
+    }
+
+    public void criarConta(String nome, LocalDate dataNascimento, String cpf, String senha, String numeroTelefone, Conta.TipoConta tipoConta) {
         Session session = HibernateConfig.getSessionFactory().openSession();
         Transaction transaction = session.beginTransaction();
 
@@ -28,10 +34,13 @@ public class ContaService {
             throw new IllegalArgumentException("Já existe uma conta com o mesmo CPF ou número de conta.");
         }
 
+        String senhaHasheada = criptografiaService.criptografarSenha(senha);
+
         try {
             Conta novaConta = new Conta();
             novaConta.setTipoConta(tipoConta);
             novaConta.setCpf(cpf);
+            novaConta.setSenha(senhaHasheada);
             novaConta.setDataNascimento(dataNascimento);
             novaConta.setSaldo(BigDecimal.ZERO);
             novaConta.setNome(nome);
@@ -48,6 +57,48 @@ public class ContaService {
             }
             System.err.println("Erro ao criar conta: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
+    public UUID realizarLogin(String senha, String cpf) {
+        Session session = null;
+        Transaction transaction = null;
+
+        try {
+            session = HibernateConfig.getSessionFactory().openSession();
+            transaction = session.beginTransaction();
+
+            String hql = "FROM Conta c WHERE c.cpf = :cpf";
+            Query<Conta> query = session.createQuery(hql, Conta.class);
+            query.setParameter("cpf", cpf);
+
+            Conta conta = query.uniqueResult();
+
+            if (conta == null) {
+                System.out.println("Conta não encontrada.");
+                return null;
+            }
+
+            var resultado = criptografiaService.verificarSenha(senha, conta.getSenha());
+
+            if(!resultado) {
+                System.out.println("Senha incorreta.");
+                return null;
+            }
+
+            System.out.println("Login bem-sucedido!");
+            return conta.getId();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw new RuntimeException("Erro ao realizar login: " + e.getMessage());
         } finally {
             if (session != null) {
                 session.close();
