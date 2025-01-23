@@ -21,18 +21,29 @@ public class Conta {
     @Column(nullable = false)
     private BigDecimal saldo;
 
+    @Column(nullable = false)
     private String nome;
 
+    @Column(nullable = false)
+    private String senha;
+
+    @Column(nullable = false)
     private LocalDate dataNascimento;
 
+    @Column(nullable = false, unique = true)
     private String cpf;
 
+    @Column(nullable = false)
     private String numeroTelefone;
 
     @OneToMany(mappedBy = "conta", cascade = CascadeType.ALL)
     private List<Transacao> transacoes = new ArrayList<>();
 
     public Conta() {
+    }
+
+    public UUID getId() {
+        return id;
     }
 
     public TipoConta getTipoConta() {
@@ -81,6 +92,14 @@ public class Conta {
 
     public void setNumeroTelefone(String numeroTelefone) {
         this.numeroTelefone = numeroTelefone;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 
     public enum TipoConta {

@@ -1,6 +1,14 @@
 package br.com.compass;
 
+import br.com.compass.application.conta.ContaMenu;
+import br.com.compass.application.conta.services.ContaService;
+import br.com.compass.application.security.BCryptService;
+import br.com.compass.application.security.ICriptografiaService;
+import br.com.compass.application.transacao.TransacaoMenu;
+import br.com.compass.application.transacao.services.TransacaoService;
+
 import java.util.Scanner;
+import java.util.UUID;
 
 public class App {
     
@@ -14,6 +22,10 @@ public class App {
     }
 
     public static void mainMenu(Scanner scanner) {
+        ICriptografiaService criptografiaService = new BCryptService();
+        ContaService contaService = new ContaService(criptografiaService);
+        ContaMenu contaMenu = new ContaMenu(contaService);
+
         boolean running = true;
 
         while (running) {
@@ -28,11 +40,14 @@ public class App {
 
             switch (option) {
                 case 1:
-                    bankMenu(scanner);
+                    UUID contaId = contaMenu.realizarLogin();
+                    if(contaId == null) {
+                        break;
+                    }
+                    bankMenu(scanner, contaId);
                     return;
                 case 2:
-                    // ToDo...
-                    System.out.println("Account Opening.");
+                    contaMenu.iniciarCriacaoConta();
                     break;
                 case 0:
                     running = false;
@@ -43,7 +58,13 @@ public class App {
         }
     }
 
-    public static void bankMenu(Scanner scanner) {
+    public static void bankMenu(Scanner scanner, UUID contaLogada) {
+        TransacaoService transacaoService = new TransacaoService();
+        TransacaoMenu transacaoMenu = new TransacaoMenu(transacaoService);
+        ICriptografiaService criptografiaService = new BCryptService();
+        ContaService contaService = new ContaService(criptografiaService);
+        ContaMenu contaMenu = new ContaMenu(contaService);
+
         boolean running = true;
 
         while (running) {
@@ -61,27 +82,21 @@ public class App {
 
             switch (option) {
                 case 1:
-                    // ToDo...
-                    System.out.println("Deposit.");
+                    transacaoMenu.iniciarDeposito(contaLogada);
                     break;
                 case 2:
-                    // ToDo...
-                    System.out.println("Withdraw.");
+                    transacaoMenu.iniciarSaque(contaLogada);
                     break;
                 case 3:
-                    // ToDo...
-                    System.out.println("Check Balance.");
+                    contaMenu.verificarSaldo(contaLogada);
                     break;
                 case 4:
-                    // ToDo...
-                    System.out.println("Transfer.");
+                    transacaoMenu.iniciarTransferencia(contaLogada);
                     break;
                 case 5:
-                    // ToDo...
-                    System.out.println("Bank Statement.");
+                    contaMenu.iniciarConsultaTransacoes(contaLogada);
                     break;
                 case 0:
-                    // ToDo...
                     System.out.println("Exiting...");
                     running = false;
                     return;
