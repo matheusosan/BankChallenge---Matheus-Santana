@@ -4,6 +4,7 @@ import br.com.compass.application.transacao.services.TransacaoService;
 
 import java.math.BigDecimal;
 import java.util.Scanner;
+import java.util.UUID;
 
 public class TransacaoMenu {
 
@@ -15,11 +16,8 @@ public class TransacaoMenu {
         this.scanner = new Scanner(System.in);
     }
 
-    public void iniciarDeposito() {
+    public void iniciarDeposito(UUID contaAutenticada) {
         try {
-            System.out.print("Digite o número da conta de destino: ");
-            String numeroConta = scanner.nextLine();
-
             System.out.print("Digite o valor do depósito: ");
             String valorInput = scanner.nextLine();
             BigDecimal valorDeposito = new BigDecimal(valorInput);
@@ -28,18 +26,15 @@ public class TransacaoMenu {
                 throw new IllegalArgumentException("O valor do depósito deve ser positivo.");
             }
 
-            transacaoService.realizarDeposito(numeroConta, valorDeposito);
+            transacaoService.realizarDeposito(contaAutenticada.toString(), valorDeposito);
 
         } catch (Exception e) {
             System.out.println("Erro ao realizar depósito: " + e.getMessage());
         }
     }
 
-    public void iniciarSaque() {
+    public void iniciarSaque(UUID contaAutenticada) {
         try {
-            System.out.print("Digite o número da conta de origem: ");
-            String numeroConta = scanner.nextLine();
-
             System.out.print("Digite o valor do saque: ");
             String valorInput = scanner.nextLine();
             BigDecimal valorSaque = new BigDecimal(valorInput);
@@ -48,18 +43,15 @@ public class TransacaoMenu {
                 throw new IllegalArgumentException("O valor do saque deve ser positivo.");
             }
 
-            transacaoService.realizarSaque(numeroConta, valorSaque);
+            transacaoService.realizarSaque(contaAutenticada.toString(), valorSaque);
 
         } catch (Exception e) {
             System.err.println("Erro ao realizar saque: " + e.getMessage());
         }
     }
 
-    public void iniciarTransferencia() {
+    public void iniciarTransferencia(UUID contaAutenticada) {
         try {
-            System.out.print("Digite o número da conta de origem: ");
-            String contaBaseId = scanner.nextLine();
-
             System.out.print("Digite o número da conta de destino: ");
             String contaDestinoId = scanner.nextLine();
 
@@ -71,7 +63,7 @@ public class TransacaoMenu {
                 throw new IllegalArgumentException("O valor da transferência deve ser positivo.");
             }
 
-            transacaoService.realizarTransferencia(contaDestinoId, contaBaseId, montante);
+            transacaoService.realizarTransferencia(contaDestinoId, contaAutenticada.toString(), montante);
 
         } catch (IllegalArgumentException e) {
             System.out.println("Erro ao realizar transferência: " + e.getMessage());

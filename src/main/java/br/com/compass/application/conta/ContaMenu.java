@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
+import java.util.UUID;
 
 public class ContaMenu {
     private final ContaService contaService;
@@ -31,6 +32,9 @@ public class ContaMenu {
             System.out.print("Digite o CPF: ");
             String cpf = scanner.nextLine();
 
+            System.out.print("Crie uma senha: ");
+            String senha = scanner.nextLine();
+
             System.out.print("Digite o número de telefone: ");
             String numeroTelefone = scanner.nextLine();
 
@@ -50,29 +54,41 @@ public class ContaMenu {
                 default -> throw new IllegalArgumentException("Opção inválida para tipo de conta.");
             }
 
-            contaService.criarConta(nome, dataNascimento, cpf, numeroTelefone, tipoConta);
+            contaService.criarConta(nome, dataNascimento, cpf, senha, numeroTelefone, tipoConta);
         } catch (Exception e) {
             System.out.println("Erro ao criar conta: " + e.getMessage());
         }
     }
 
-    public void verificarSaldo() {
+    public UUID realizarLogin() {
+        UUID idConta = null;
+
         try {
-            System.out.print("Digite o número da conta a verificar o saldo: ");
-            String contaId = scanner.nextLine();
-            contaService.verificarSaldo(contaId);
+            System.out.print("Digite seu CPF para realizar login: ");
+            String cpf = scanner.nextLine();
+
+            System.out.print("Digite sua senha: ");
+            String senha = scanner.nextLine();
+
+            idConta = contaService.realizarLogin(senha, cpf);
+        } catch (Exception e) {
+            System.out.println("Erro ao buscar transações: " + e.getMessage());
+        }
+        return idConta;
+    };
+
+    public void verificarSaldo(UUID contaAutenticada) {
+        try {
+            contaService.verificarSaldo(contaAutenticada.toString());
         }
         catch (Exception e) {
                 System.out.println("Erro ao buscar transações: " + e.getMessage());
             }
         }
 
-    public void iniciarConsultaTransacoes() {
+    public void iniciarConsultaTransacoes(UUID contaAutenticada) {
         try {
-            System.out.print("Digite o número da conta para listar as transações: ");
-            String numeroConta = scanner.nextLine();
-
-            List<Transacao> transacoes = contaService.extratoDeTransacoes(numeroConta);
+            List<Transacao> transacoes = contaService.extratoDeTransacoes(contaAutenticada.toString());
 
             if (transacoes.isEmpty()) {
                 System.out.println("Nenhuma transação encontrada para esta conta.");
