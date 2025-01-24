@@ -1,124 +1,109 @@
 package br.com.compass.application.transacao.services;
 
+import br.com.compass.application.conta.repository.AccountRepository;
+import br.com.compass.application.transacao.repository.TransactionRepository;
 import br.com.compass.domain.entities.Conta;
 import br.com.compass.domain.entities.Transacao;
-import br.com.compass.infra.config.HibernateConfig;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class TransacaoService {
-
+    private AccountRepository accountRepository = new AccountRepository();
+    private TransactionRepository transactionRepository = new TransactionRepository();
 
     public void realizarDeposito(String contaId, BigDecimal montante) {
-        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
-            UUID id = UUID.fromString(contaId);
 
-            Transaction transaction = session.beginTransaction();
+        try {
 
-            Conta conta = session.find(Conta.class, id);
+        Conta account = accountRepository.findById(UUID.fromString(contaId));
 
-            if (conta == null) {
-                throw new IllegalArgumentException("Conta não encontrada.");
-            }
+        if (account == null) {
+            throw new IllegalArgumentException("Conta não encontrada.");
+        }
 
-            conta.setSaldo(conta.getSaldo().add(montante));
+        account.setSaldo(account.getSaldo().add(montante));
 
-            Transacao transacao = new Transacao();
-            transacao.setTipoTransacao(Transacao.TipoTransacao.DEPOSITO);
-            transacao.setQuantia(montante);
-            transacao.setCriadoEm(LocalDateTime.now());
-            transacao.setConta(conta);
+        accountRepository.update(account);
 
-            session.persist(transacao);
+        Transacao transacao = new Transacao();
+        transacao.setTipoTransacao(Transacao.TipoTransacao.DEPOSITO);
+        transacao.setQuantia(montante);
+        transacao.setCriadoEm(LocalDateTime.now());
+        transacao.setConta(account);
 
-            session.merge(conta);
-
-            transaction.commit();
-
-            System.out.println("Depósito realizado com sucesso!");
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        transactionRepository.save(transacao);
+        System.out.println("Depósito realizado com sucesso!");
+        }
+        catch (Exception e) {
+            System.out.println("Ocorreu um erro: " + e.getMessage());
         }
     }
 
     public void realizarSaque(String contaId, BigDecimal montante) {
-        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
-            Transaction transaction = session.beginTransaction();
+        try {
 
-            Conta conta = session.find(Conta.class, UUID.fromString(contaId));
+        Conta account = accountRepository.findById(UUID.fromString(contaId));
 
-            if (conta == null) {
-                throw new IllegalArgumentException("Conta não encontrada.");
-            }
-
-            if (conta.getSaldo().compareTo(montante) < 0) {
-                throw new RuntimeException("Saldo insuficiente para saque");
-            }
-
-            conta.setSaldo(conta.getSaldo().subtract(montante));
-
-            Transacao transacao = new Transacao();
-            transacao.setTipoTransacao(Transacao.TipoTransacao.SAQUE);
-            transacao.setQuantia(montante);
-            transacao.setCriadoEm(LocalDateTime.now());
-            transacao.setConta(conta);
-
-            session.persist(transacao);
-
-            session.merge(conta);
-
-            transaction.commit();
-
-            System.out.println("Saque realizado com sucesso!");
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (account == null) {
+            throw new IllegalArgumentException("Conta não encontrada.");
         }
+
+        if (account.getSaldo().compareTo(montante) < 0) {
+            throw new RuntimeException("Saldo insuficiente para saque");
+        }
+        account.setSaldo(account.getSaldo().subtract(montante));
+
+        Transacao transacao = new Transacao();
+        transacao.setTipoTransacao(Transacao.TipoTransacao.SAQUE);
+        transacao.setQuantia(montante);
+        transacao.setCriadoEm(LocalDateTime.now());
+        transacao.setConta(account);
+
+        accountRepository.update(account);
+        transactionRepository.save(transacao);
+
+        System.out.println("Saque realizado com sucesso!");
+
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+}
 
     public void realizarTransferencia(String contaDestinoId, String contaBaseId, BigDecimal montante) {
-        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
+        try {
+            Conta senderAccount = accountRepository.findById(UUID.fromString(contaBaseId));
+            Conta receiverAccount = accountRepository.findById(UUID.fromString(contaDestinoId));
 
-            Transaction transaction = session.beginTransaction();
-
-            Conta contaBase = session.find(Conta.class, UUID.fromString(contaBaseId));
-            Conta contaDestino = session.find(Conta.class, UUID.fromString(contaDestinoId));
-
-            if (contaBase == null) {
+            if (senderAccount == null) {
                 throw new IllegalArgumentException("Conta base não encontrada.");
             }
 
-            if (contaDestino == null) {
+            if (receiverAccount == null) {
                 throw new IllegalArgumentException("Conta destino não encontrada.");
             }
 
-            if (contaBase.getSaldo().compareTo(montante) < 0) {
+            if (senderAccount.getSaldo().compareTo(montante) < 0) {
                 throw new IllegalArgumentException("Saldo insuficiente na conta base para realizar a transferência.");
             }
 
-            contaBase.setSaldo(contaBase.getSaldo().subtract(montante));
-            contaDestino.setSaldo(contaDestino.getSaldo().add(montante));
+            senderAccount.setSaldo(senderAccount.getSaldo().subtract(montante));
+            receiverAccount.setSaldo(receiverAccount.getSaldo().add(montante));
 
             Transacao transacao = new Transacao();
             transacao.setTipoTransacao(Transacao.TipoTransacao.TRANSFERENCIA);
             transacao.setQuantia(montante);
             transacao.setCriadoEm(LocalDateTime.now());
-            transacao.setConta(contaBase);
-            transacao.setContaDestino(contaDestino);
+            transacao.setConta(senderAccount);
+            transacao.setContaDestino(receiverAccount);
 
-            session.persist(transacao);
-
-            session.merge(contaBase);
-            session.merge(contaDestino);
-
-            transaction.commit();
+            transactionRepository.save(transacao);
+            accountRepository.update(senderAccount);
+            accountRepository.update(receiverAccount);
 
             System.out.println("Transferência realizada com sucesso!");
+
         }  catch (Exception e) {
             e.printStackTrace();
         }

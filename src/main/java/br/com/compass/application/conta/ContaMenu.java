@@ -4,9 +4,11 @@ import br.com.compass.application.conta.services.ContaService;
 import br.com.compass.domain.entities.Conta;
 import br.com.compass.domain.entities.Transacao;
 
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 import java.util.UUID;
 
@@ -79,7 +81,12 @@ public class ContaMenu {
 
     public void verificarSaldo(UUID contaAutenticada) {
         try {
-            contaService.verificarSaldo(contaAutenticada.toString());
+            var balance = contaService.verificarSaldo(contaAutenticada.toString());
+            NumberFormat formatToBrl = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
+
+            String formattedValue = formatToBrl.format(balance);
+
+            System.out.println("Valor em conta: " + formattedValue);
         }
         catch (Exception e) {
                 System.out.println("Erro ao buscar transações: " + e.getMessage());
