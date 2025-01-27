@@ -4,6 +4,7 @@ import br.com.compass.application.conta.services.ContaService;
 import br.com.compass.domain.entities.Conta;
 import br.com.compass.domain.entities.Transacao;
 
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -57,7 +58,9 @@ public class ContaMenu {
             }
 
             contaService.criarConta(nome, dataNascimento, cpf, senha, numeroTelefone, tipoConta);
-        } catch (Exception e) {
+            System.out.println("Conta salva com sucesso!");
+
+        } catch (RuntimeException e) {
             System.out.println("Erro ao criar conta: " + e.getMessage());
         }
     }
@@ -73,33 +76,31 @@ public class ContaMenu {
             String senha = scanner.nextLine();
 
             idConta = contaService.realizarLogin(senha, cpf);
-        } catch (Exception e) {
-            System.out.println("Erro ao buscar transações: " + e.getMessage());
+
+            System.out.println("Login bem sucedido!");
+        } catch (RuntimeException e) {
+            System.out.println("Ocorreu um erro: " + e.getMessage());
         }
         return idConta;
     };
 
     public void verificarSaldo(UUID contaAutenticada) {
         try {
-            var balance = contaService.verificarSaldo(contaAutenticada.toString());
+            BigDecimal balance = contaService.verificarSaldo(contaAutenticada.toString());
             NumberFormat formatToBrl = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 
             String formattedValue = formatToBrl.format(balance);
 
             System.out.println("Valor em conta: " + formattedValue);
         }
-        catch (Exception e) {
-                System.out.println("Erro ao buscar transações: " + e.getMessage());
+        catch (RuntimeException e) {
+                System.out.println("Ocorreu um erro ao visualizar saldo: " + e.getMessage());
             }
         }
 
     public void iniciarConsultaTransacoes(UUID contaAutenticada) {
         try {
             List<Transacao> transacoes = contaService.extratoDeTransacoes(contaAutenticada.toString());
-
-            if (transacoes.isEmpty()) {
-                System.out.println("Nenhuma transação encontrada para esta conta.");
-            }
 
             System.out.println("Transações da conta:");
                 for (Transacao transacao : transacoes) {
@@ -111,7 +112,7 @@ public class ContaMenu {
                     );
                 }
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             System.out.println("Erro ao buscar transações: " + e.getMessage());
         }
     }

@@ -22,13 +22,10 @@ public class TransacaoMenu {
             String valorInput = scanner.nextLine();
             BigDecimal valorDeposito = new BigDecimal(valorInput);
 
-            if (valorDeposito.compareTo(BigDecimal.ZERO) <= 0) {
-                throw new IllegalArgumentException("O valor do depósito deve ser positivo.");
-            }
-
             transacaoService.realizarDeposito(contaAutenticada.toString(), valorDeposito);
+            System.out.println("Depósito realizado com sucesso!");
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             System.out.println("Erro ao realizar depósito: " + e.getMessage());
         }
     }
@@ -39,14 +36,11 @@ public class TransacaoMenu {
             String valorInput = scanner.nextLine();
             BigDecimal valorSaque = new BigDecimal(valorInput);
 
-            if (valorSaque.compareTo(BigDecimal.ZERO) <= 0) {
-                throw new IllegalArgumentException("O valor do saque deve ser positivo.");
-            }
-
             transacaoService.realizarSaque(contaAutenticada.toString(), valorSaque);
 
-        } catch (Exception e) {
-            System.err.println("Erro ao realizar saque: " + e.getMessage());
+            System.out.println("Saque realizado com sucesso!");
+        } catch (RuntimeException e) {
+            System.out.println("Erro ao realizar saque: " + e.getMessage());
         }
     }
 
@@ -59,13 +53,11 @@ public class TransacaoMenu {
             String valorInput = scanner.nextLine();
             BigDecimal montante = new BigDecimal(valorInput);
 
-            if (montante.compareTo(BigDecimal.ZERO) <= 0) {
-                throw new IllegalArgumentException("O valor da transferência deve ser positivo.");
-            }
-
             transacaoService.realizarTransferencia(contaDestinoId, contaAutenticada.toString(), montante);
 
-        } catch (IllegalArgumentException e) {
+            System.out.println("Transferência realizada com sucesso!");
+
+        } catch (RuntimeException e) {
             System.out.println("Erro ao realizar transferência: " + e.getMessage());
         }
     }

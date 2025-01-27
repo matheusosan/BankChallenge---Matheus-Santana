@@ -14,8 +14,9 @@ public class TransacaoService {
     private TransactionRepository transactionRepository = new TransactionRepository();
 
     public void realizarDeposito(String contaId, BigDecimal montante) {
-
-        try {
+        if (montante.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("O valor do depósito deve ser positivo.");
+        }
 
         Conta account = accountRepository.findById(UUID.fromString(contaId));
 
@@ -34,20 +35,18 @@ public class TransacaoService {
         transacao.setConta(account);
 
         transactionRepository.save(transacao);
-        System.out.println("Depósito realizado com sucesso!");
-        }
-        catch (Exception e) {
-            System.out.println("Ocorreu um erro: " + e.getMessage());
-        }
+
     }
 
     public void realizarSaque(String contaId, BigDecimal montante) {
-        try {
+        if (montante.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("O valor do saque deve ser positivo.");
+        }
 
         Conta account = accountRepository.findById(UUID.fromString(contaId));
 
         if (account == null) {
-            throw new IllegalArgumentException("Conta não encontrada.");
+            throw new RuntimeException("Conta não encontrada.");
         }
 
         if (account.getSaldo().compareTo(montante) < 0) {
@@ -63,16 +62,13 @@ public class TransacaoService {
 
         accountRepository.update(account);
         transactionRepository.save(transacao);
-
-        System.out.println("Saque realizado com sucesso!");
-
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
 }
 
     public void realizarTransferencia(String contaDestinoId, String contaBaseId, BigDecimal montante) {
-        try {
+        if (montante.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("O valor da transferência deve ser positivo.");
+        }
+
             Conta senderAccount = accountRepository.findById(UUID.fromString(contaBaseId));
             Conta receiverAccount = accountRepository.findById(UUID.fromString(contaDestinoId));
 
@@ -101,11 +97,5 @@ public class TransacaoService {
             transactionRepository.save(transacao);
             accountRepository.update(senderAccount);
             accountRepository.update(receiverAccount);
-
-            System.out.println("Transferência realizada com sucesso!");
-
-        }  catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }
