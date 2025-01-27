@@ -5,9 +5,6 @@ import br.com.compass.application.security.ICriptografiaService;
 import br.com.compass.application.transacao.repository.TransactionRepository;
 import br.com.compass.domain.entities.Conta;
 import br.com.compass.domain.entities.Transacao;
-import br.com.compass.infra.config.HibernateConfig;
-import org.hibernate.Session;
-import org.hibernate.query.Query;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -43,16 +40,13 @@ public class ContaService {
         newAccount.setNumeroTelefone(numeroTelefone);
 
         accountRepository.save(newAccount);
-
-        System.out.println("Conta salva com sucesso!");
     }
 
     public UUID realizarLogin(String senha, String cpf) {
         Optional<Conta> accountExists = accountRepository.findByCpf(cpf);
 
         if (accountExists.isEmpty()) {
-            System.out.println("Conta não encontrada.");
-            return null;
+            throw new RuntimeException("Conta não encontrada.");
         }
 
         Conta account = accountExists.get();
@@ -60,11 +54,9 @@ public class ContaService {
         boolean passwordMatches = criptografiaService.verificarSenha(senha, account.getSenha());
 
         if (!passwordMatches) {
-            System.out.println("Senha incorreta.");
-            return null;
+            throw new RuntimeException("Senha incorreta.");
         }
 
-        System.out.println("Login bem-sucedido!");
         return account.getId();
     }
 
@@ -72,15 +64,20 @@ public class ContaService {
         Conta account = accountRepository.findById(UUID.fromString(contaId));
 
         if (account == null) {
-            System.out.println("Conta não encontrada.");
-            return null;
+            throw new RuntimeException("Conta não encontrada.");
         }
 
         return account.getSaldo();
     }
 
     public List<Transacao> extratoDeTransacoes(String contaId) {
-       return transactionRepository.findAllById(UUID.fromString(contaId));
+       List<Transacao> transactions = transactionRepository.findAllById(UUID.fromString(contaId));
+
+       if(transactions.isEmpty()) {
+           throw new RuntimeException("Você não possui transações.");
+       }
+
+       return transactions;
     };
 
 
