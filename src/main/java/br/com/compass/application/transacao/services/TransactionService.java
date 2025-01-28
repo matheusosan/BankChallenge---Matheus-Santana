@@ -15,10 +15,6 @@ public class TransactionService {
 
 
     public void makeDeposit(String accountId, BigDecimal amount) {
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("O valor do depósito deve ser positivo.");
-        }
-
         Account account = accountRepository.findById(UUID.fromString(accountId));
 
         if (account == null) {
@@ -40,10 +36,6 @@ public class TransactionService {
     }
 
     public void makeWithdraw(String accountId, BigDecimal amount) {
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuntimeException("O valor do saque deve ser positivo.");
-        }
-
         Account account = accountRepository.findById(UUID.fromString(accountId));
 
         if (account == null) {
@@ -66,10 +58,6 @@ public class TransactionService {
 }
 
     public void makeTransfer(String destinyAccountId, String baseAccountId, BigDecimal amount) {
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("O valor da transferência deve ser positivo.");
-        }
-
             Account senderAccount = accountRepository.findById(UUID.fromString(baseAccountId));
             Account receiverAccount = accountRepository.findById(UUID.fromString(destinyAccountId));
 
