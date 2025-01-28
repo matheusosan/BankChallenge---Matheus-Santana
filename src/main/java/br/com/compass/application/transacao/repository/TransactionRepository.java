@@ -1,6 +1,6 @@
 package br.com.compass.application.transacao.repository;
 
-import br.com.compass.domain.entities.Transacao;
+import br.com.compass.domain.entities.Transaction;
 import br.com.compass.infra.config.HibernateConfig;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
@@ -10,23 +10,37 @@ import java.util.UUID;
 
 public class TransactionRepository {
 
-    public void save(Transacao transacao) {
-        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
-            session.beginTransaction();
+    public void save(Transaction transacao) {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+        org.hibernate.Transaction transaction = session.beginTransaction();
+        try {
             session.persist(transacao);
-            session.getTransaction().commit();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw e;
+        } finally {
+            session.close();
         }
     }
 
-    public List<Transacao> findAllById(UUID contaId) {
-        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
-            String hql = "FROM Transacao t WHERE t.conta.id = :contaId ORDER BY t.criadoEm DESC";
-            Query<Transacao> query = session.createQuery(hql, Transacao.class);
+    public List<Transaction> findAllById(UUID contaId) {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+        org.hibernate.Transaction transaction = session.beginTransaction();
+        try {
+            String hql = "FROM Transaction t WHERE t.account.id = :contaId ORDER BY t.createdAt DESC";
+            Query<Transaction> query = session.createQuery(hql, Transaction.class);
             query.setParameter("contaId", contaId);
             return query.getResultList();
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Erro ao buscar transações para a conta: " + e.getMessage());
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw e;
+        } finally {
+            session.close();
         }
     }
 }

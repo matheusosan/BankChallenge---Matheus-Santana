@@ -1,6 +1,6 @@
 package br.com.compass.application.transacao;
 
-import br.com.compass.application.transacao.services.TransacaoService;
+import br.com.compass.application.transacao.services.TransactionService;
 
 import java.math.BigDecimal;
 import java.util.Scanner;
@@ -8,11 +8,11 @@ import java.util.UUID;
 
 public class TransacaoMenu {
 
-    private final TransacaoService transacaoService;
+    private final TransactionService transactionService;
     private final Scanner scanner;
 
-    public TransacaoMenu(TransacaoService transacaoService) {
-        this.transacaoService = transacaoService;
+    public TransacaoMenu(TransactionService transactionService) {
+        this.transactionService = transactionService;
         this.scanner = new Scanner(System.in);
     }
 
@@ -22,7 +22,7 @@ public class TransacaoMenu {
             String valorInput = scanner.nextLine();
             BigDecimal valorDeposito = new BigDecimal(valorInput);
 
-            transacaoService.realizarDeposito(contaAutenticada.toString(), valorDeposito);
+            transactionService.realizarDeposito(contaAutenticada.toString(), valorDeposito);
             System.out.println("Depósito realizado com sucesso!");
 
         } catch (RuntimeException e) {
@@ -36,7 +36,7 @@ public class TransacaoMenu {
             String valorInput = scanner.nextLine();
             BigDecimal valorSaque = new BigDecimal(valorInput);
 
-            transacaoService.realizarSaque(contaAutenticada.toString(), valorSaque);
+            transactionService.realizarSaque(contaAutenticada.toString(), valorSaque);
 
             System.out.println("Saque realizado com sucesso!");
         } catch (RuntimeException e) {
@@ -53,7 +53,7 @@ public class TransacaoMenu {
             String valorInput = scanner.nextLine();
             BigDecimal montante = new BigDecimal(valorInput);
 
-            transacaoService.realizarTransferencia(contaDestinoId, contaAutenticada.toString(), montante);
+            transactionService.realizarTransferencia(contaDestinoId, contaAutenticada.toString(), montante);
 
             System.out.println("Transferência realizada com sucesso!");
 

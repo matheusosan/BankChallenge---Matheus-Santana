@@ -1,11 +1,11 @@
 package br.com.compass;
 
 import br.com.compass.application.conta.ContaMenu;
-import br.com.compass.application.conta.services.ContaService;
+import br.com.compass.application.conta.services.AccountService;
 import br.com.compass.application.security.BCryptService;
 import br.com.compass.application.security.ICriptografiaService;
 import br.com.compass.application.transacao.TransacaoMenu;
-import br.com.compass.application.transacao.services.TransacaoService;
+import br.com.compass.application.transacao.services.TransactionService;
 
 import java.util.Scanner;
 import java.util.UUID;
@@ -23,8 +23,8 @@ public class App {
 
     public static void mainMenu(Scanner scanner) {
         ICriptografiaService criptografiaService = new BCryptService();
-        ContaService contaService = new ContaService(criptografiaService);
-        ContaMenu contaMenu = new ContaMenu(contaService);
+        AccountService accountService = new AccountService(criptografiaService);
+        ContaMenu contaMenu = new ContaMenu(accountService);
 
         boolean running = true;
 
@@ -59,11 +59,11 @@ public class App {
     }
 
     public static void bankMenu(Scanner scanner, UUID contaLogada) {
-        TransacaoService transacaoService = new TransacaoService();
-        TransacaoMenu transacaoMenu = new TransacaoMenu(transacaoService);
+        TransactionService transactionService = new TransactionService();
+        TransacaoMenu transacaoMenu = new TransacaoMenu(transactionService);
         ICriptografiaService criptografiaService = new BCryptService();
-        ContaService contaService = new ContaService(criptografiaService);
-        ContaMenu contaMenu = new ContaMenu(contaService);
+        AccountService accountService = new AccountService(criptografiaService);
+        ContaMenu contaMenu = new ContaMenu(accountService);
 
         boolean running = true;
 

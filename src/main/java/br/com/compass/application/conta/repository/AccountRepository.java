@@ -1,6 +1,6 @@
 package br.com.compass.application.conta.repository;
 
-import br.com.compass.domain.entities.Conta;
+import br.com.compass.domain.entities.Account;
 import br.com.compass.infra.config.HibernateConfig;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -11,17 +11,17 @@ import java.util.UUID;
 
 public class AccountRepository {
 
-    public Conta findById(UUID contaId) {
+    public Account findById(UUID contaId) {
         try (Session session = HibernateConfig.getSessionFactory().openSession()) {
-            return session.find(Conta.class, contaId);
+            return session.find(Account.class, contaId);
         }
     }
 
-    public Optional<Conta> findByCpf(String cpf) {
+    public Optional<Account> findByCpf(String cpf) {
         Session session = HibernateConfig.getSessionFactory().openSession();
-        String hql = "FROM Conta c WHERE c.cpf = :cpf";
+        String hql = "FROM Account c WHERE c.login = :cpf";
 
-        List<Conta> accounts = session.createQuery(hql, Conta.class)
+        List<Account> accounts = session.createQuery(hql, Account.class)
                 .setParameter("cpf", cpf)
                 .getResultList();
         session.close();
@@ -33,7 +33,7 @@ public class AccountRepository {
         return accounts.isEmpty() ? Optional.empty() : Optional.of(accounts.get(0));
     }
 
-    public void save(Conta conta) {
+    public void save(Account conta) {
         Session session = HibernateConfig.getSessionFactory().openSession();
         Transaction transaction = session.beginTransaction();
         try {
@@ -49,7 +49,7 @@ public class AccountRepository {
         }
     }
 
-    public void update(Conta account) {
+    public void update(Account account) {
         try (Session session = HibernateConfig.getSessionFactory().openSession()) {
             session.beginTransaction();
             session.merge(account);

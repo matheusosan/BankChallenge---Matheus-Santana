@@ -1,8 +1,8 @@
 package br.com.compass.application.conta;
 
-import br.com.compass.application.conta.services.ContaService;
-import br.com.compass.domain.entities.Conta;
-import br.com.compass.domain.entities.Transacao;
+import br.com.compass.application.conta.services.AccountService;
+import br.com.compass.domain.entities.Account;
+import br.com.compass.domain.entities.Transaction;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -14,11 +14,11 @@ import java.util.Scanner;
 import java.util.UUID;
 
 public class ContaMenu {
-    private final ContaService contaService;
+    private final AccountService accountService;
     private final Scanner scanner;
 
-    public ContaMenu(ContaService contaService) {
-        this.contaService = contaService;
+    public ContaMenu(AccountService accountService) {
+        this.accountService = accountService;
         this.scanner = new Scanner(System.in);
     }
 
@@ -49,15 +49,15 @@ public class ContaMenu {
             int opcao = scanner.nextInt();
             scanner.nextLine();
 
-            Conta.TipoConta tipoConta;
+            Account.AccountType tipoConta;
             switch (opcao) {
-                case 1 -> tipoConta = Conta.TipoConta.CONTA_CORRENTE;
-                case 2 -> tipoConta = Conta.TipoConta.CONTA_SALARIO;
-                case 3 -> tipoConta = Conta.TipoConta.CONTA_POUPANCA;
+                case 1 -> tipoConta = Account.AccountType.CONTA_CORRENTE;
+                case 2 -> tipoConta =  Account.AccountType.CONTA_SALARIO;
+                case 3 -> tipoConta =  Account.AccountType.CONTA_POUPANCA;
                 default -> throw new IllegalArgumentException("Opção inválida para tipo de conta.");
             }
 
-            contaService.criarConta(nome, dataNascimento, cpf, senha, numeroTelefone, tipoConta);
+            accountService.criarConta(nome, dataNascimento, cpf, senha, numeroTelefone, tipoConta);
             System.out.println("Conta salva com sucesso!");
 
         } catch (RuntimeException e) {
@@ -75,7 +75,7 @@ public class ContaMenu {
             System.out.print("Digite sua senha: ");
             String senha = scanner.nextLine();
 
-            idConta = contaService.realizarLogin(senha, cpf);
+            idConta = accountService.realizarLogin(senha, cpf);
 
             System.out.println("Login bem sucedido!");
         } catch (RuntimeException e) {
@@ -86,7 +86,7 @@ public class ContaMenu {
 
     public void verificarSaldo(UUID contaAutenticada) {
         try {
-            BigDecimal balance = contaService.verificarSaldo(contaAutenticada.toString());
+            BigDecimal balance = accountService.verificarSaldo(contaAutenticada.toString());
             NumberFormat formatToBrl = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 
             String formattedValue = formatToBrl.format(balance);
@@ -100,15 +100,15 @@ public class ContaMenu {
 
     public void iniciarConsultaTransacoes(UUID contaAutenticada) {
         try {
-            List<Transacao> transacoes = contaService.extratoDeTransacoes(contaAutenticada.toString());
+            List<Transaction> transactions = accountService.extratoDeTransacoes(contaAutenticada.toString());
 
             System.out.println("Transações da conta:");
-                for (Transacao transacao : transacoes) {
+                for (Transaction transaction : transactions) {
                     System.out.printf(
                             "Tipo: %s, Quantia: %s, Data: %s%n",
-                            transacao.getTipoTransacao(),
-                            transacao.getQuantia(),
-                            transacao.getCriadoEm()
+                            transaction.getTransactionType(),
+                            transaction.getAmount(),
+                            transaction.getCreatedAt()
                     );
                 }
 
