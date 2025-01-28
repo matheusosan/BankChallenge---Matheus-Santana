@@ -16,12 +16,15 @@ import java.util.UUID;
 
 public class AccountService {
     private IEncryptionService encryptionService;
-    private AccountRepository accountRepository = new AccountRepository();
-    private TransactionRepository transactionRepository = new TransactionRepository();
-    private UserRepository userRepository = new UserRepository();
+    private UserRepository userRepository;
+    private AccountRepository accountRepository;
+    private TransactionRepository transactionRepository;
 
-    public AccountService(IEncryptionService encryptionService) {
+    public AccountService(IEncryptionService encryptionService, UserRepository userRepository, AccountRepository accountRepository, TransactionRepository transactionRepository) {
+        this.userRepository = userRepository;
         this.encryptionService = encryptionService;
+        this.accountRepository = accountRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     public void createAccount(String name, LocalDate birthDate, String cpf, String password, String phoneNumber, Account.AccountType accountType) {
