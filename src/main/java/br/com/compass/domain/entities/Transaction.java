@@ -19,7 +19,7 @@ public class Transaction {
     @Column(nullable = false)
     private BigDecimal amount;
 
-    @Column(nullable = false, name = "transaction_type")
+    @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @ManyToOne

@@ -1,29 +1,35 @@
 package br.com.compass;
 
 import br.com.compass.application.account.AccountMenu;
+import br.com.compass.application.account.repository.AccountRepository;
 import br.com.compass.application.account.services.AccountService;
 import br.com.compass.application.security.BCryptService;
 import br.com.compass.application.security.IEncryptionService;
 import br.com.compass.application.transacao.TransactionMenu;
+import br.com.compass.application.transacao.repository.TransactionRepository;
 import br.com.compass.application.transacao.services.TransactionService;
+import br.com.compass.application.user.repository.UserRepository;
 
 import java.util.Scanner;
 import java.util.UUID;
 
 public class App {
-    
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
         mainMenu(scanner);
-        
+
         scanner.close();
         System.out.println("Application closed");
     }
 
     public static void mainMenu(Scanner scanner) {
         IEncryptionService encryptionService = new BCryptService();
-        AccountService accountService = new AccountService(encryptionService);
+        UserRepository userRepository = new UserRepository();
+        AccountRepository accountRepository = new AccountRepository();
+        TransactionRepository transactionRepository = new TransactionRepository();
+        AccountService accountService = new AccountService(encryptionService, userRepository, accountRepository, transactionRepository);
         AccountMenu accountMenu = new AccountMenu(accountService);
 
         boolean running = true;
@@ -62,7 +68,10 @@ public class App {
         TransactionService transactionService = new TransactionService();
         TransactionMenu transactionMenu = new TransactionMenu(transactionService);
         IEncryptionService encryptionService = new BCryptService();
-        AccountService accountService = new AccountService(encryptionService);
+        UserRepository userRepository = new UserRepository();
+        AccountRepository accountRepository = new AccountRepository();
+        TransactionRepository transactionRepository = new TransactionRepository();
+        AccountService accountService = new AccountService(encryptionService, userRepository, accountRepository, transactionRepository);
         AccountMenu accountMenu = new AccountMenu(accountService);
 
         boolean running = true;

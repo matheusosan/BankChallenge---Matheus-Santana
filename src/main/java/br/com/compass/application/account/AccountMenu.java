@@ -27,19 +27,35 @@ public class AccountMenu {
             System.out.print("Digite o nome: ");
             String name = scanner.nextLine();
 
+            if(name.isEmpty()) {
+                throw new IllegalArgumentException("Campo nome é obrigatório!");
+            }
+
             System.out.print("Digite a data de nascimento (formato: dd-MM-yyyy): ");
             String birthDateInput = scanner.nextLine();
+
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
             LocalDate birthDate = LocalDate.parse(birthDateInput, formatter);
 
             System.out.print("Digite o CPF: ");
             String cpf = scanner.nextLine();
 
+            if(cpf.length() != 11) {
+                throw new IllegalArgumentException("Digite um CPF válido");
+            }
+
             System.out.print("Crie uma senha: ");
             String password = scanner.nextLine();
+            if(password.length() != 6) {
+                throw new IllegalArgumentException("A senha deve conter no mínimo 6 caracteres");
 
-            System.out.print("Digite o número de telefone: ");
+            }
+
+            System.out.print("Digite o número de telefone (apenas números, sem traços e parenteres) ");
             String phoneNumber = scanner.nextLine();
+            if(phoneNumber.length() != 11) {
+                throw new IllegalArgumentException("Digite um número de telefone válido");
+            }
 
             System.out.println("Escolha o tipo de conta:");
             System.out.println("1 - Conta Corrente");
