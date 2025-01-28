@@ -1,7 +1,8 @@
 package br.com.compass.infra.config;
 
-import br.com.compass.domain.entities.Conta;
-import br.com.compass.domain.entities.Transacao;
+import br.com.compass.domain.entities.Account;
+import br.com.compass.domain.entities.Transaction;
+import br.com.compass.domain.entities.User;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
@@ -25,8 +26,9 @@ public class HibernateConfig {
 //            configuration.setProperty("hibernate.show_sql", "true");
 //            configuration.setProperty("hibernate.format_sql", "true");
 
-            configuration.addAnnotatedClass(Conta.class);
-            configuration.addAnnotatedClass(Transacao.class);
+            configuration.addAnnotatedClass(Account.class);
+            configuration.addAnnotatedClass(Transaction.class);
+            configuration.addAnnotatedClass(User.class);
 
             ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                     .applySettings(configuration.getProperties())
