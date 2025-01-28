@@ -1,6 +1,6 @@
-package br.com.compass.application.conta;
+package br.com.compass.application.account;
 
-import br.com.compass.application.conta.services.AccountService;
+import br.com.compass.application.account.services.AccountService;
 import br.com.compass.domain.entities.Account;
 import br.com.compass.domain.entities.Transaction;
 
@@ -13,51 +13,51 @@ import java.util.Locale;
 import java.util.Scanner;
 import java.util.UUID;
 
-public class ContaMenu {
+public class AccountMenu {
     private final AccountService accountService;
     private final Scanner scanner;
 
-    public ContaMenu(AccountService accountService) {
+    public AccountMenu(AccountService accountService) {
         this.accountService = accountService;
         this.scanner = new Scanner(System.in);
     }
 
-    public void iniciarCriacaoConta() {
+    public void createAccount() {
         try {
             System.out.print("Digite o nome: ");
-            String nome = scanner.nextLine();
+            String name = scanner.nextLine();
 
             System.out.print("Digite a data de nascimento (formato: dd-MM-yyyy): ");
-            String dataNascimentoInput = scanner.nextLine();
+            String birthDateInput = scanner.nextLine();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-            LocalDate dataNascimento = LocalDate.parse(dataNascimentoInput, formatter);
+            LocalDate birthDate = LocalDate.parse(birthDateInput, formatter);
 
             System.out.print("Digite o CPF: ");
             String cpf = scanner.nextLine();
 
             System.out.print("Crie uma senha: ");
-            String senha = scanner.nextLine();
+            String password = scanner.nextLine();
 
             System.out.print("Digite o número de telefone: ");
-            String numeroTelefone = scanner.nextLine();
+            String phoneNumber = scanner.nextLine();
 
             System.out.println("Escolha o tipo de conta:");
             System.out.println("1 - Conta Corrente");
             System.out.println("2 - Conta Salário");
             System.out.println("3 - Conta Poupança");
             System.out.print("Digite a opção desejada (1, 2 ou 3): ");
-            int opcao = scanner.nextInt();
+            int accountOption = scanner.nextInt();
             scanner.nextLine();
 
-            Account.AccountType tipoConta;
-            switch (opcao) {
-                case 1 -> tipoConta = Account.AccountType.CONTA_CORRENTE;
-                case 2 -> tipoConta =  Account.AccountType.CONTA_SALARIO;
-                case 3 -> tipoConta =  Account.AccountType.CONTA_POUPANCA;
+            Account.AccountType accountType;
+            switch (accountOption) {
+                case 1 -> accountType = Account.AccountType.CONTA_CORRENTE;
+                case 2 -> accountType =  Account.AccountType.CONTA_SALARIO;
+                case 3 -> accountType =  Account.AccountType.CONTA_POUPANCA;
                 default -> throw new IllegalArgumentException("Opção inválida para tipo de conta.");
             }
 
-            accountService.criarConta(nome, dataNascimento, cpf, senha, numeroTelefone, tipoConta);
+            accountService.createAccount(name, birthDate, cpf, password, phoneNumber, accountType);
             System.out.println("Conta salva com sucesso!");
 
         } catch (RuntimeException e) {
@@ -65,28 +65,28 @@ public class ContaMenu {
         }
     }
 
-    public UUID realizarLogin() {
-        UUID idConta = null;
+    public UUID login() {
+        UUID accountId = null;
 
         try {
             System.out.print("Digite seu CPF para realizar login: ");
             String cpf = scanner.nextLine();
 
             System.out.print("Digite sua senha: ");
-            String senha = scanner.nextLine();
+            String password = scanner.nextLine();
 
-            idConta = accountService.realizarLogin(senha, cpf);
+            accountId = accountService.login(password, cpf);
 
             System.out.println("Login bem sucedido!");
         } catch (RuntimeException e) {
             System.out.println("Ocorreu um erro: " + e.getMessage());
         }
-        return idConta;
+        return accountId;
     };
 
-    public void verificarSaldo(UUID contaAutenticada) {
+    public void checkBalance(UUID authenticatedAccount) {
         try {
-            BigDecimal balance = accountService.verificarSaldo(contaAutenticada.toString());
+            BigDecimal balance = accountService.checkBalance(authenticatedAccount.toString());
             NumberFormat formatToBrl = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 
             String formattedValue = formatToBrl.format(balance);
@@ -98,9 +98,9 @@ public class ContaMenu {
             }
         }
 
-    public void iniciarConsultaTransacoes(UUID contaAutenticada) {
+    public void checkStatement(UUID authenticatedAccount) {
         try {
-            List<Transaction> transactions = accountService.extratoDeTransacoes(contaAutenticada.toString());
+            List<Transaction> transactions = accountService.checkStatement(authenticatedAccount.toString());
 
             System.out.println("Transações da conta:");
                 for (Transaction transaction : transactions) {

@@ -1,4 +1,4 @@
-package br.com.compass.application.conta.repository;
+package br.com.compass.application.account.repository;
 
 import br.com.compass.domain.entities.Account;
 import br.com.compass.infra.config.HibernateConfig;

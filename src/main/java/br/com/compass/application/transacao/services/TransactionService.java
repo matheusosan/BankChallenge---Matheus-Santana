@@ -1,6 +1,6 @@
 package br.com.compass.application.transacao.services;
 
-import br.com.compass.application.conta.repository.AccountRepository;
+import br.com.compass.application.account.repository.AccountRepository;
 import br.com.compass.application.transacao.repository.TransactionRepository;
 import br.com.compass.domain.entities.Account;
 import br.com.compass.domain.entities.Transaction;
@@ -13,24 +13,25 @@ public class TransactionService {
     private AccountRepository accountRepository = new AccountRepository();
     private TransactionRepository transactionRepository = new TransactionRepository();
 
-    public void realizarDeposito(String contaId, BigDecimal montante) {
-        if (montante.compareTo(BigDecimal.ZERO) <= 0) {
+
+    public void makeDeposit(String accountId, BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("O valor do depósito deve ser positivo.");
         }
 
-        Account account = accountRepository.findById(UUID.fromString(contaId));
+        Account account = accountRepository.findById(UUID.fromString(accountId));
 
         if (account == null) {
             throw new IllegalArgumentException("Conta não encontrada.");
         }
 
-        account.setBalance(account.getBalance().add(montante));
+        account.setBalance(account.getBalance().add(amount));
 
         accountRepository.update(account);
 
         Transaction transaction = new Transaction();
         transaction.setTransactionType(Transaction.TransactionType.DEPOSITO);
-        transaction.setAmount(montante);
+        transaction.setAmount(amount);
         transaction.setCreatedAt(LocalDateTime.now());
         transaction.setAccount(account);
 
@@ -38,39 +39,39 @@ public class TransactionService {
 
     }
 
-    public void realizarSaque(String contaId, BigDecimal montante) {
-        if (montante.compareTo(BigDecimal.ZERO) <= 0) {
+    public void makeWithdraw(String accountId, BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new RuntimeException("O valor do saque deve ser positivo.");
         }
 
-        Account account = accountRepository.findById(UUID.fromString(contaId));
+        Account account = accountRepository.findById(UUID.fromString(accountId));
 
         if (account == null) {
             throw new RuntimeException("Conta não encontrada.");
         }
 
-        if (account.getBalance().compareTo(montante) < 0) {
+        if (account.getBalance().compareTo(amount) < 0) {
             throw new RuntimeException("Saldo insuficiente para saque");
         }
-        account.setBalance(account.getBalance().subtract(montante));
+        account.setBalance(account.getBalance().subtract(amount));
 
-        Transaction transacao = new Transaction();
-        transacao.setTransactionType(Transaction.TransactionType.SAQUE);
-        transacao.setAmount(montante);
-        transacao.setCreatedAt(LocalDateTime.now());
-        transacao.setAccount(account);
+        Transaction transaction = new Transaction();
+        transaction.setTransactionType(Transaction.TransactionType.SAQUE);
+        transaction.setAmount(amount);
+        transaction.setCreatedAt(LocalDateTime.now());
+        transaction.setAccount(account);
 
         accountRepository.update(account);
-        transactionRepository.save(transacao);
+        transactionRepository.save(transaction);
 }
 
-    public void realizarTransferencia(String contaDestinoId, String contaBaseId, BigDecimal montante) {
-        if (montante.compareTo(BigDecimal.ZERO) <= 0) {
+    public void makeTransfer(String destinyAccountId, String baseAccountId, BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("O valor da transferência deve ser positivo.");
         }
 
-            Account senderAccount = accountRepository.findById(UUID.fromString(contaBaseId));
-            Account receiverAccount = accountRepository.findById(UUID.fromString(contaDestinoId));
+            Account senderAccount = accountRepository.findById(UUID.fromString(baseAccountId));
+            Account receiverAccount = accountRepository.findById(UUID.fromString(destinyAccountId));
 
             if (senderAccount == null) {
                 throw new IllegalArgumentException("Conta base não encontrada.");
@@ -80,16 +81,16 @@ public class TransactionService {
                 throw new IllegalArgumentException("Conta destino não encontrada.");
             }
 
-            if (senderAccount.getBalance().compareTo(montante) < 0) {
+            if (senderAccount.getBalance().compareTo(amount) < 0) {
                 throw new IllegalArgumentException("Saldo insuficiente na conta base para realizar a transferência.");
             }
 
-            senderAccount.setBalance(senderAccount.getBalance().subtract(montante));
-            receiverAccount.setBalance(receiverAccount.getBalance().add(montante));
+            senderAccount.setBalance(senderAccount.getBalance().subtract(amount));
+            receiverAccount.setBalance(receiverAccount.getBalance().add(amount));
 
             Transaction transaction = new Transaction();
             transaction.setTransactionType(Transaction.TransactionType.TRANSFERENCIA);
-            transaction.setAmount(montante);
+            transaction.setAmount(amount);
             transaction.setCreatedAt(LocalDateTime.now());
             transaction.setAccount(senderAccount);
             transaction.setDestinyAccount(receiverAccount);

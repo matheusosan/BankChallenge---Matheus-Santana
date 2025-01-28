@@ -1,7 +1,7 @@
-package br.com.compass.application.conta.services;
+package br.com.compass.application.account.services;
 
-import br.com.compass.application.conta.repository.AccountRepository;
-import br.com.compass.application.security.ICriptografiaService;
+import br.com.compass.application.account.repository.AccountRepository;
+import br.com.compass.application.security.IEncryptionService;
 import br.com.compass.application.transacao.repository.TransactionRepository;
 import br.com.compass.application.user.repository.UserRepository;
 import br.com.compass.domain.entities.Account;
@@ -15,36 +15,36 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class AccountService {
-    private ICriptografiaService criptografiaService;
+    private IEncryptionService encryptionService;
     private AccountRepository accountRepository = new AccountRepository();
     private TransactionRepository transactionRepository = new TransactionRepository();
     private UserRepository userRepository = new UserRepository();
 
-    public AccountService(ICriptografiaService criptografiaService) {
-        this.criptografiaService = criptografiaService;
+    public AccountService(IEncryptionService encryptionService) {
+        this.encryptionService = encryptionService;
     }
 
-    public void criarConta(String nome, LocalDate dataNascimento, String cpf, String senha, String numeroTelefone, Account.AccountType tipoAccount) {
+    public void createAccount(String name, LocalDate birthDate, String cpf, String password, String phoneNumber, Account.AccountType accountType) {
         Optional<Account> accountExists = accountRepository.findByCpf(cpf);
 
         if (accountExists.isPresent()) {
             throw new IllegalArgumentException("Já existe uma conta com o CPF fornecido.");
         }
 
-        String hashedPassword = criptografiaService.criptografarSenha(senha);
+        String hashedPassword = encryptionService.encryptPassword(password);
 
 
         User newUser = new User();
-        newUser.setPhoneNumber(numeroTelefone);
-        newUser.setName(nome);
+        newUser.setPhoneNumber(phoneNumber);
+        newUser.setName(name);
         newUser.setCpf(cpf);
-        newUser.setBirthDate(dataNascimento);
+        newUser.setBirthDate(birthDate);
 
         userRepository.save(newUser);
 
         Account newAccount = new Account();
         newAccount.setPassword(hashedPassword);
-        newAccount.setAccountType(tipoAccount);
+        newAccount.setAccountType(accountType);
         newAccount.setLogin(cpf);
         newAccount.setBalance(BigDecimal.ZERO);
         newAccount.setUser(newUser);
@@ -52,7 +52,7 @@ public class AccountService {
         accountRepository.save(newAccount);
     }
 
-    public UUID realizarLogin(String senha, String cpf) {
+    public UUID login(String password, String cpf) {
         Optional<Account> accountExists = accountRepository.findByCpf(cpf);
 
         if (accountExists.isEmpty()) {
@@ -61,7 +61,7 @@ public class AccountService {
 
         Account account = accountExists.get();
 
-        boolean passwordMatches = criptografiaService.verificarSenha(senha, account.getPassword());
+        boolean passwordMatches = encryptionService.verifyPassword(password, account.getPassword());
 
         if (!passwordMatches) {
             throw new RuntimeException("Senha incorreta.");
@@ -70,8 +70,8 @@ public class AccountService {
         return account.getId();
     }
 
-    public BigDecimal verificarSaldo(String contaId) {
-        Account account = accountRepository.findById(UUID.fromString(contaId));
+    public BigDecimal checkBalance(String accountId) {
+        Account account = accountRepository.findById(UUID.fromString(accountId));
 
         if (account == null) {
             throw new RuntimeException("Account não encontrada.");
@@ -80,8 +80,8 @@ public class AccountService {
         return account.getBalance();
     }
 
-    public List<Transaction> extratoDeTransacoes(String contaId) {
-       List<Transaction> transactions = transactionRepository.findAllById(UUID.fromString(contaId));
+    public List<Transaction> checkStatement(String accountId) {
+       List<Transaction> transactions = transactionRepository.findAllById(UUID.fromString(accountId));
 
        if(transactions.isEmpty()) {
            throw new RuntimeException("Você não possui transações.");
