@@ -6,23 +6,23 @@ import java.math.BigDecimal;
 import java.util.Scanner;
 import java.util.UUID;
 
-public class TransacaoMenu {
+public class TransactionMenu {
 
     private final TransactionService transactionService;
     private final Scanner scanner;
 
-    public TransacaoMenu(TransactionService transactionService) {
+    public TransactionMenu(TransactionService transactionService) {
         this.transactionService = transactionService;
         this.scanner = new Scanner(System.in);
     }
 
-    public void iniciarDeposito(UUID contaAutenticada) {
+    public void makeDeposit(UUID authenticatedAccountId) {
         try {
             System.out.print("Digite o valor do depósito: ");
-            String valorInput = scanner.nextLine();
-            BigDecimal valorDeposito = new BigDecimal(valorInput);
+            String amountInput = scanner.nextLine();
+            BigDecimal amount = new BigDecimal(amountInput);
 
-            transactionService.realizarDeposito(contaAutenticada.toString(), valorDeposito);
+            transactionService.makeDeposit(authenticatedAccountId.toString(), amount);
             System.out.println("Depósito realizado com sucesso!");
 
         } catch (RuntimeException e) {
@@ -30,13 +30,13 @@ public class TransacaoMenu {
         }
     }
 
-    public void iniciarSaque(UUID contaAutenticada) {
+    public void makeWithdraw(UUID authenticatedAccountId) {
         try {
             System.out.print("Digite o valor do saque: ");
-            String valorInput = scanner.nextLine();
-            BigDecimal valorSaque = new BigDecimal(valorInput);
+            String amountInput = scanner.nextLine();
+            BigDecimal amount = new BigDecimal(amountInput);
 
-            transactionService.realizarSaque(contaAutenticada.toString(), valorSaque);
+            transactionService.makeWithdraw(authenticatedAccountId.toString(), amount);
 
             System.out.println("Saque realizado com sucesso!");
         } catch (RuntimeException e) {
@@ -44,16 +44,16 @@ public class TransacaoMenu {
         }
     }
 
-    public void iniciarTransferencia(UUID contaAutenticada) {
+    public void makeTransfer(UUID authenticatedAccountId) {
         try {
             System.out.print("Digite o número da conta de destino: ");
-            String contaDestinoId = scanner.nextLine();
+            String destinyAccountId = scanner.nextLine();
 
             System.out.print("Digite o valor da transferência: ");
-            String valorInput = scanner.nextLine();
-            BigDecimal montante = new BigDecimal(valorInput);
+            String amountInput = scanner.nextLine();
+            BigDecimal amount = new BigDecimal(amountInput);
 
-            transactionService.realizarTransferencia(contaDestinoId, contaAutenticada.toString(), montante);
+            transactionService.makeTransfer(destinyAccountId, authenticatedAccountId.toString(), amount);
 
             System.out.println("Transferência realizada com sucesso!");
 

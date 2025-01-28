@@ -1,10 +1,10 @@
 package br.com.compass;
 
-import br.com.compass.application.conta.ContaMenu;
-import br.com.compass.application.conta.services.AccountService;
+import br.com.compass.application.account.AccountMenu;
+import br.com.compass.application.account.services.AccountService;
 import br.com.compass.application.security.BCryptService;
-import br.com.compass.application.security.ICriptografiaService;
-import br.com.compass.application.transacao.TransacaoMenu;
+import br.com.compass.application.security.IEncryptionService;
+import br.com.compass.application.transacao.TransactionMenu;
 import br.com.compass.application.transacao.services.TransactionService;
 
 import java.util.Scanner;
@@ -22,9 +22,9 @@ public class App {
     }
 
     public static void mainMenu(Scanner scanner) {
-        ICriptografiaService criptografiaService = new BCryptService();
-        AccountService accountService = new AccountService(criptografiaService);
-        ContaMenu contaMenu = new ContaMenu(accountService);
+        IEncryptionService encryptionService = new BCryptService();
+        AccountService accountService = new AccountService(encryptionService);
+        AccountMenu accountMenu = new AccountMenu(accountService);
 
         boolean running = true;
 
@@ -40,14 +40,14 @@ public class App {
 
             switch (option) {
                 case 1:
-                    UUID contaId = contaMenu.realizarLogin();
-                    if(contaId == null) {
+                    UUID accountId = accountMenu.login();
+                    if(accountId == null) {
                         break;
                     }
-                    bankMenu(scanner, contaId);
+                    bankMenu(scanner, accountId);
                     return;
                 case 2:
-                    contaMenu.iniciarCriacaoConta();
+                    accountMenu.createAccount();
                     break;
                 case 0:
                     running = false;
@@ -60,10 +60,10 @@ public class App {
 
     public static void bankMenu(Scanner scanner, UUID contaLogada) {
         TransactionService transactionService = new TransactionService();
-        TransacaoMenu transacaoMenu = new TransacaoMenu(transactionService);
-        ICriptografiaService criptografiaService = new BCryptService();
-        AccountService accountService = new AccountService(criptografiaService);
-        ContaMenu contaMenu = new ContaMenu(accountService);
+        TransactionMenu transactionMenu = new TransactionMenu(transactionService);
+        IEncryptionService encryptionService = new BCryptService();
+        AccountService accountService = new AccountService(encryptionService);
+        AccountMenu accountMenu = new AccountMenu(accountService);
 
         boolean running = true;
 
@@ -82,19 +82,19 @@ public class App {
 
             switch (option) {
                 case 1:
-                    transacaoMenu.iniciarDeposito(contaLogada);
+                    transactionMenu.makeDeposit(contaLogada);
                     break;
                 case 2:
-                    transacaoMenu.iniciarSaque(contaLogada);
+                    transactionMenu.makeWithdraw(contaLogada);
                     break;
                 case 3:
-                    contaMenu.verificarSaldo(contaLogada);
+                    accountMenu.checkBalance(contaLogada);
                     break;
                 case 4:
-                    transacaoMenu.iniciarTransferencia(contaLogada);
+                    transactionMenu.makeTransfer(contaLogada);
                     break;
                 case 5:
-                    contaMenu.iniciarConsultaTransacoes(contaLogada);
+                    accountMenu.checkStatement(contaLogada);
                     break;
                 case 0:
                     System.out.println("Exiting...");
